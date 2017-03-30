@@ -1,6 +1,7 @@
 # sa_capstone_elections_project
 
 
+
 #Resources
 
 2016 Presidential Elections ID's
@@ -8,3 +9,7 @@
 
 2012 Presidential Election Tweets
 * [https://datahub.io/dataset/twitter-2012-presidential-election](https://datahub.io/dataset/twitter-2012-presidential-election)
+
+Serializing TextBlob classifier system
+http://stackoverflow.com/questions/24431449/how-to-save-the-result-of-classifier-textblob-naivebayesclassifier
+
