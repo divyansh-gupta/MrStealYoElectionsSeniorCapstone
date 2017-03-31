@@ -1,7 +1,5 @@
 # sa_capstone_elections_project
 
-
-
 #Resources
 
 2016 Presidential Elections ID's
@@ -13,3 +11,10 @@
 Serializing TextBlob classifier system
 http://stackoverflow.com/questions/24431449/how-to-save-the-result-of-classifier-textblob-naivebayesclassifier
 
+Political Classes:
+* democrat
+* republican
+* indepedendent
+
+Connect to the AWS Instances as follows:
+ssh -i "***REMOVED***" ***REMOVED***
