@@ -6,7 +6,24 @@ path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 sys.path.append(path)
 import constants
 
-tweet_list = [{"text": "this is a democratic tweet"}, {"text": "this is another democratic tweet"}]
+
+def get_tweets(screen_name):
+	alltweets = []
+	new_tweets = api.user_timeline(screen_name = screen_name, count=200)
+	alltweets.extend(new_tweets)
+	oldest = alltweets[-1].id - 1
+	
+	while len(new_tweets) > 0:
+		new_tweets = api.user_timeline(screen_name = screen_name,count=200,max_id=oldest)
+		alltweets.extend(new_tweets)
+		oldest = alltweets[-1].id - 1
+
+
+
+tweet_list = get_tweets('BernieSanders')
+
+pprint(tweet_list[0])
+exit()
 
 label = constants.Classifications.democrat
 
