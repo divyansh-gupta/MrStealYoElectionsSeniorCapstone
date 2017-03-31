@@ -1,7 +1,5 @@
 # sa_capstone_elections_project
 
-
-
 #Resources
 
 2016 Presidential Elections ID's
@@ -18,3 +16,5 @@ Political Classes:
 * republican
 * indepedendent
 
+Connect to the AWS Instances as follows:
+ssh -i "***REMOVED***" ***REMOVED***
