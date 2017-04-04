@@ -33,8 +33,13 @@ class Pclassifier:
         self.classifier.show_informative_features()
         
     def test(self, test_set):
-        print(self.classifier.accuracy(test_set))    
-    
-auth = tweepy.OAuthHandler("***REMOVED***", "***REMOVED***")
-auth.set_access_token("***REMOVED***", "***REMOVED***")
+        print(self.classifier.accuracy(test_set))
+
+consumer_key = '***REMOVED***'
+consumer_secret = '***REMOVED***'
+access_token = '***REMOVED***'
+access_token_secret = '***REMOVED***'
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
