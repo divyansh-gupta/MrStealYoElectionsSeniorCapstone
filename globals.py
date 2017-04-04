@@ -27,7 +27,7 @@ class Pclassifier:
         self.classifier = NaiveBayesClassifier(train_set, self.custom_extractor)
     
     def classify(self, text):
-        Classifications(self.classifier.classify(text))
+        self.classifier.classify(text)
     
     def notable_features(self):
         self.classifier.show_informative_features()
