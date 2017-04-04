@@ -1,7 +1,8 @@
 import globals
 import pickle
 import sys
-
+import json
+from pprint import pprint
 classifier_file = sys.argv[1]
 tweets_file = sys.argv[2]
 
@@ -9,5 +10,18 @@ with open(classifier_file, 'rb') as f:
     political_classifier = pickle.load(f)
     
 print(political_classifier.classify("This is a fake madeup tweet"))
+
+def load_tweets(fname):
+    with open(fname,'r') as f:
+        data = json.load(f)
+    return data
+tweet_list = load_tweets(tweets_file)
+
+for tweet in tweet_list:
+    tweet['classification'] = political_classifier.classify(tweet['text'])
+    pprint(tweet) 
+
+
+
 
 
