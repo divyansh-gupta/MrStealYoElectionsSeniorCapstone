@@ -1,2 +1,9 @@
-RealDonaldTrump, 2
-BernieSanders, 1
+RealDonaldTrump 2
+BernieSanders 1
+SpeakerRyan 2
+SenJohnMcCain 2
+BarackObama 1
+ewerickson 2
+ggreenwald 1
+HillaryClinton 1
+maddow 1
