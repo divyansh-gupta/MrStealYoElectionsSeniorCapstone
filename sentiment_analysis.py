@@ -2,6 +2,7 @@ import re
 import tweepy
 from tweepy import OAuthHandler
 from textblob import TextBlob
+import globals
 
 class TwitterClient(object):
     '''
@@ -9,24 +10,25 @@ class TwitterClient(object):
     '''
     def __init__(self):
         '''
-        Class constructor or initialization method.
-        '''
-        # keys and tokens from the Twitter Dev Console
-        consumer_key = ''
-        consumer_secret = ''
-        access_token = ''
-        access_token_secret = ''
+        # Class constructor or initialization method.
+        # '''
+        # # keys and tokens from the Twitter Dev Console
+        # consumer_key = globals.consumer_key
+        # consumer_secret = globals.consumer_secret
+        # access_token = globals.access_token
+        # access_token_secret = globals.access_token_secret
 
         # attempt authentication
-        try:
-            # create OAuthHandler object
-            self.auth = OAuthHandler(consumer_key, consumer_secret)
-            # set access token and secret
-            self.auth.set_access_token(access_token, access_token_secret)
-            # create tweepy API object to fetch tweets
-            self.api = tweepy.API(self.auth)
-        except:
-            print("Error: Authentication Failed")
+        # try:
+        #     # create OAuthHandler object
+        #     self.auth = OAuthHandler(consumer_key, consumer_secret)
+        #     # set access token and secret
+        #     self.auth.set_access_token(access_token, access_token_secret)
+        #     # create tweepy API object to fetch tweets
+        #     self.api = tweepy.API(self.auth)
+        # except:
+        #     print("Error: Authentication Failed")
+        pass
 
     def clean_tweet(self, tweet):
         '''
@@ -59,7 +61,7 @@ class TwitterClient(object):
 
         try:
             # call twitter api to fetch tweets
-            fetched_tweets = self.api.search(q = query, count = count)
+            fetched_tweets = globals.api.search(q = query, count = count)
 
             # parsing tweets one by one
             for tweet in fetched_tweets:
@@ -102,7 +104,7 @@ def main():
     print("Negative tweets percentage: {} %".format(100*len(ntweets)/len(tweets)))
     # percentage of neutral tweets
     print("Neutral tweets percentage: {} % \
-        ".format(100*len(tweets - ntweets - ptweets)/len(tweets)))
+        ".format(100*(len(tweets) - len(ntweets) - len(ptweets))/len(tweets)))
 
     # printing first 5 positive tweets
     print("\n\nPositive tweets:")
