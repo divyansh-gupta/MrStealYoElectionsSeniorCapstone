@@ -25,7 +25,6 @@ def weight_metric(tweet):
     retweets = tweet['retweet_count']
     retweets = 0.5
     favorites = tweet['user']['favourites']
-    favorites_wt = 
     
 for tweet in tweet_list:
     classifcation = political_classifier.classify(tweet['text'])
