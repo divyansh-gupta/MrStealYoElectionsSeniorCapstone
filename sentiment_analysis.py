@@ -3,31 +3,12 @@ import tweepy
 from tweepy import OAuthHandler
 from textblob import TextBlob
 import globals
+import s3
+import os
+import json
 
 class TwitterClient(object):
-    '''
-    Generic Twitter Class for sentiment analysis.
-    '''
     def __init__(self):
-        '''
-        # Class constructor or initialization method.
-        # '''
-        # # keys and tokens from the Twitter Dev Console
-        # consumer_key = globals.consumer_key
-        # consumer_secret = globals.consumer_secret
-        # access_token = globals.access_token
-        # access_token_secret = globals.access_token_secret
-
-        # attempt authentication
-        # try:
-        #     # create OAuthHandler object
-        #     self.auth = OAuthHandler(consumer_key, consumer_secret)
-        #     # set access token and secret
-        #     self.auth.set_access_token(access_token, access_token_secret)
-        #     # create tweepy API object to fetch tweets
-        #     self.api = tweepy.API(self.auth)
-        # except:
-        #     print("Error: Authentication Failed")
         pass
 
     def clean_tweet(self, tweet):
@@ -38,10 +19,6 @@ class TwitterClient(object):
         return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
     def get_tweet_sentiment(self, tweet):
-        '''
-        Utility function to classify sentiment of passed tweet
-        using textblob's sentiment method
-        '''
         # create TextBlob object of passed tweet text
         analysis = TextBlob(self.clean_tweet(tweet))
         # set sentiment
@@ -52,47 +29,54 @@ class TwitterClient(object):
         else:
             return 'negative'
 
-    def get_tweets(self, query, count = 10):
-        '''
-        Main function to fetch tweets and parse them.
-        '''
-        # empty list to store parsed tweets
+    def get_tweets(self):
         tweets = []
 
-        try:
-            # call twitter api to fetch tweets
-            fetched_tweets = globals.api.search(q = query, count = count)
+        if os.path.exists('2012_data') is False:
+            os.makedirs('2012_data')
+        if os.path.exists('2016_data') is False:
+            os.makedirs('2016_data')
 
-            # parsing tweets one by one
-            for tweet in fetched_tweets:
-                # empty dictionary to store required params of a tweet
-                parsed_tweet = {}
+        file_key = '2012_data/cache-0.json'
+        opened_file = ''
+        if os.path.exists(file_key) is False:
+            opened_file = s3.download_from_s3('social-networking-capstone', file_key, file_key, True)
+        else:
+            opened_file = open(file_key, 'r')
+        fetched_tweets = opened_file.readlines()
 
-                # saving text of tweet
-                parsed_tweet['text'] = tweet.text
-                # saving sentiment of tweet
-                parsed_tweet['sentiment'] = self.get_tweet_sentiment(tweet.text)
+        print "File has been opened and read."
 
-                # appending parsed tweet to tweets list
-                if tweet.retweet_count > 0:
-                    # if tweet has retweets, ensure that it is appended only once
-                    if parsed_tweet not in tweets:
-                        tweets.append(parsed_tweet)
-                else:
-                    tweets.append(parsed_tweet)
+        for tweet in fetched_tweets:
+            # empty dictionary to store required params of a tweet
+            self.clean_tweet(tweet)
+            tweet_json = json.loads(tweet)
+            parsed_tweet = {}
 
-            # return parsed tweets
-            return tweets
+           # saving text of tweet
+            parsed_tweet['text'] = tweet_json['text']
+            # saving sentiment of tweet
+            parsed_tweet['sentiment'] = self.get_tweet_sentiment(tweet_json['text'])
+            tweets.append(parsed_tweet)
 
-        except tweepy.TweepError as e:
-            # print error (if any)
-            print("Error : " + str(e))
+            # appending parsed tweet to tweets list
+            # if tweet.retweet_count > 0:
+            #     # if tweet has retweets, ensure that it is appended only once
+            #     if parsed_tweet not in tweets:
+            #         tweets.append(parsed_tweet)
+            # else:
+            #     tweets.append(parsed_tweet)
+
+        # return parsed tweets
+        opened_file.close()
+
+        return tweets
 
 def main():
     # creating object of TwitterClient Class
     api = TwitterClient()
     # calling function to get tweets
-    tweets = api.get_tweets(query = 'Donald Trump', count = 200)
+    tweets = api.get_tweets()
 
     # picking positive tweets from tweets
     ptweets = [tweet for tweet in tweets if tweet['sentiment'] == 'positive']
@@ -117,5 +101,4 @@ def main():
         print(tweet['text'])
 
 if __name__ == "__main__":
-    # calling main function
     main()
