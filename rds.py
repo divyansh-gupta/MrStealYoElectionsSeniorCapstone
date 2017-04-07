@@ -1,4 +1,6 @@
 import MySQLdb
+import peewee
+from peewee import *
 
 db = MySQLdb.connect(host="***REMOVED***",    # your host, usually localhost
                      user="***REMOVED***",        
@@ -15,7 +17,7 @@ print cur
 cur.execute("CREATE TABLE CUSTOMERS(ID INT NOT NULL, NAME VARCHAR (20) NOT NULL, PRIMARY KEY (ID));")
 
 # print all the first cell of all the rows
-for row in cur.fetchall():
-    print row[0]
+# for row in cur.fetchall():
+#     print row[0]
 
 db.close()
