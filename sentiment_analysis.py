@@ -37,7 +37,6 @@ class TwitterClient(object):
             parsed_tweet['text'] = tweet_json['text']
             self.get_tweet_sentiment(parsed_tweet)
             parsed_tweet['retweet_count'] = tweet_json['retweet_count']
-
             self.tweets.append(parsed_tweet)
             
     def get_tweets(self):
@@ -78,19 +77,6 @@ def main():
     ntweets = [tweet for tweet in tweets if tweet['sentiment'] == 'negative']
     # percentage of negative tweets
     print("Negative tweets percentage: ", len(ntweets))
-    # # percentage of neutral tweets
-    # print("Neutral tweets percentage: {} % \
-    #     ".format(100*(len(tweets) - len(ntweets) - len(ptweets))/len(tweets)))
-
-    # # printing first 5 positive tweets
-    # print("\n\nPositive tweets:")
-    # for tweet in ptweets[:10]:
-    #     print(tweet['text'])
-
-    # # printing first 5 negative tweets
-    # print("\n\nNegative tweets:")
-    # for tweet in ntweets[:10]:
-    #     print(tweet['text'])
 
 if __name__ == "__main__":
     main()

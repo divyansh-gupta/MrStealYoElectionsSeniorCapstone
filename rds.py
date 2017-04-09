@@ -5,7 +5,7 @@ from peewee import *
 db = MySQLdb.connect(host="***REMOVED***",    # your host, usually localhost
                      user="***REMOVED***",        
                      passwd="***REMOVED***",
-                     db="socialnetworkingdb")        
+                     db="socialnetworkingdb")
 
 # you must create a Cursor object. It will let
 #  you execute all the queries you need
