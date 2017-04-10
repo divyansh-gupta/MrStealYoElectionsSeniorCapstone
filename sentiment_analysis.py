@@ -44,7 +44,7 @@ class TwitterClient(object):
         for x in xrange(0, hashtag_count):
             hashtag_model = {
                 'tweet': tweet_id,
-                'hashtag': hashtags_json_array[x]['text']
+                'hashtag': hashtags_json_array[x]['text'].lower()
             }
             hashtag_models.append(hashtag_model)
 
