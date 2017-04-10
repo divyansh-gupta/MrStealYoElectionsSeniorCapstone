@@ -20,7 +20,7 @@ CREATE TABLE TWEET (
     user_id VARCHAR(100) NOT NULL DEFAULT 0,
     created_at DATETIME,
     retweet_count INT NOT NULL DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES USER(ID)
+    FOREIGN KEY (user_id) REFERENCES USER(ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE USER (
@@ -29,6 +29,7 @@ CREATE TABLE USER (
     friends_count INT NOT NULL DEFAULT 0,
     statuses_count INT NOT NULL DEFAULT 0,
     screen_name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     verified BOOLEAN NOT NULL DEFAULT FALSE,
     location VARCHAR(250)
 );
@@ -36,7 +37,7 @@ CREATE TABLE USER (
 CREATE TABLE HASHTAG (
 	tweet_id VARCHAR(100) NOT NULL,
 	hashtag VARCHAR(150) NOT NULL,
-	FOREIGN KEY (tweet_id) REFERENCES TWEET(ID),
+	FOREIGN KEY (tweet_id) REFERENCES TWEET(ID) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY (tweet_id, hashtag)
 );
 
@@ -44,9 +45,18 @@ CREATE TABLE TWEETSENTIMENT (
 	tweet_id VARCHAR(100) PRIMARY KEY,
 	polarity DECIMAL NOT NULL,
 	classification VARCHAR(100) NOT NULL,
-	FOREIGN KEY (tweet_id) REFERENCES TWEET(ID)
+	FOREIGN KEY (tweet_id) REFERENCES TWEET(ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Zack fill in a create table statement for political table here.
+-- Zakk fill in a create table statement for political table here.
+-- Started it for you.
+
+CREATE TABLE TWEETPOLITICAL (
+    tweet_id VARCHAR(100) PRIMARY KEY,
+
+    -- .... Stuff here..... --
+
+    FOREIGN KEY (tweet_id) REFERENCES TWEET(ID) ON UPDATE CASCADE ON DELETE CASCADE
+);
 
 SET FOREIGN_KEY_CHECKS = 1;

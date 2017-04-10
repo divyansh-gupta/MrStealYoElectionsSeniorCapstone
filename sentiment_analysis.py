@@ -1,53 +1,73 @@
-import re
-import tweepy
-from tweepy import OAuthHandler
-from textblob import TextBlob
-import globals
-import s3
 import os
 import json
+from tweepy import OAuthHandler
+from textblob import TextBlob
+
+import globals
+import s3
+from rds import *
 
 class TwitterClient(object):
     def __init__(self):
-        tweets = []
-        pass
+        self.clean_tweet = globals.clean_tweet
+        self.twitter_time_to_datetime = globals.twitter_time_to_datetime
 
-    def clean_tweet(self, tweet):
-        '''
-        Utility function to clean tweet text by removing links, special characters
-        using simple regex statements.
-        '''
-        return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
-
-    def get_tweet_sentiment(self, parsed_tweet):
-        analysis = TextBlob(self.clean_tweet(parsed_tweet['text']))
-        parsed_tweet['sentiment_polarity'] = analysis.sentiment.polarity
+    def get_tweet_sentiment(self, tweet_model):
+        analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
+        tweet_sentiment_model = { 
+            'tweet': tweet_model['id'],
+            'polarity': analysis.sentiment.polarity
+        }
         if analysis.sentiment.polarity > 0:
-            parsed_tweet['sentiment_classification'] = 'positive'
+            tweet_sentiment_model['classification'] = 'positive'
         elif analysis.sentiment.polarity == 0:
-            parsed_tweet['sentiment_classification'] = 'neutral'
+            tweet_sentiment_model['classification'] = 'neutral'
         else:
-            parsed_tweet['sentiment_classification'] = 'negative'
+            tweet_sentiment_model['classification'] = 'negative'
+        return tweet_sentiment_model
+
+    def get_user_model(self, user_json):
+        user_model = {
+            'id': user_json['id_str'],
+            'followers_count': user_json['followers_count'],
+            'friends_count': user_json['friends_count'],  
+            'location': user_json['location'],
+            'name': user_json['name'],
+            'screen_name': user_json['screen_name'],
+            'statuses_count': user_json['statuses_count'],
+            'verified': user_json['verified'] 
+        }
+        return user_model
+
+    def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models):
+        print "inserting users, size: ", len(user_models.values())
+        bulk_insert_on_conflict_replace(User, user_models.values())
+        print "inserting tweets, size: ", len(tweet_models)
+        bulk_insert_on_conflict_replace(Tweet, tweet_models)
 
     def process_tweets(self, fetched_tweets):
-        for tweet in fetched_tweets:
-            self.clean_tweet(tweet)
+        user_models = {}
+        tweet_sentiment_models = []
+        def process_tweet(tweet):
             tweet_json = json.loads(tweet)
-            parsed_tweet = {}
-            parsed_tweet['text'] = tweet_json['text']
-            self.get_tweet_sentiment(parsed_tweet)
-            parsed_tweet['retweet_count'] = tweet_json['retweet_count']
-            self.tweets.append(parsed_tweet)
+            tweet_model = {
+                'tweet_text': tweet_json['text'],
+                'id': tweet_json['id_str'],
+                'created_at': self.twitter_time_to_datetime(tweet_json['created_at']),
+                'retweet_count': tweet_json['retweet_count']
+            }
+            tweet_sentiment_models.append(self.get_tweet_sentiment(tweet_model))
+            user_model = self.get_user_model(tweet_json['user'])
+            tweet_model['user'] = user_model['id']
+            user_models[user_model['id']] = user_model
+            return tweet_model
+        print "starting tweet processing"
+        tweet_models = map(process_tweet, fetched_tweets)
+        self.insert_all_information_into_db(tweet_models, tweet_sentiment_models)
             
-    def get_tweets(self):
-        if os.path.exists('2012_data') is False:
-            os.makedirs('2012_data')
-        if os.path.exists('2016_data') is False:
-            os.makedirs('2016_data')
-
+    def get_and_process_tweets(self):
         file_key_prefix = '2012_data/cache-'
-
-        for x in xrange(0,10):
+        for x in xrange(0, 1):
             opened_file = ''
             file_key = file_key_prefix + str(x) + '.json'
         
@@ -61,22 +81,16 @@ class TwitterClient(object):
             self.process_tweets(fetched_tweets)
             opened_file.close()
 
-        return tweets
-
 def main():
-    # creating object of TwitterClient Class
+    if os.path.exists('2012_data') is False:
+        os.makedirs('2012_data')
+    if os.path.exists('2016_data') is False:
+        os.makedirs('2016_data')
+    
     api = TwitterClient()
-    # calling function to get tweets
-    tweets = api.get_tweets()
-
-    # picking positive tweets from tweets
-    ptweets = [tweet for tweet in tweets if tweet['sentiment'] == 'positive']
-    # percentage of positive tweets
-    print("Positive tweets: ", len(ptweets))
-    # picking negative tweets from tweets
-    ntweets = [tweet for tweet in tweets if tweet['sentiment'] == 'negative']
-    # percentage of negative tweets
-    print("Negative tweets percentage: ", len(ntweets))
+    database.connect()
+    api.get_and_process_tweets()
+    database.close()
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,17 @@
 from enum import Enum
 import tweepy
+import pytz
+import re
 from textblob.classifiers import NaiveBayesClassifier
 from textblob.utils import strip_punc
+from datetime import datetime
+
+def clean_tweet(tweet):
+    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+def twitter_time_to_datetime(twitter_time):
+    return datetime.strptime(twitter_time,'%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC)
+
 class Classifications(Enum):
 	democrat = 1
 	republican = 2
