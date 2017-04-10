@@ -1,8 +1,10 @@
 import MySQLdb
 import peewee
-from peewee import *
-import globals
 import datetime
+from peewee import *
+from playhouse.shortcuts import RetryOperationalError
+
+import globals
 
 ############ EXAMPLE CODE ###############
 
@@ -31,8 +33,14 @@ import datetime
 	-H ***REMOVED*** \
 	-u ***REMOVED*** socialnetworkingdb -P >> Models.py
 '''
-database = MySQLDatabase(
-    'socialnetworkingdb',
+
+# class RetryDB(RetryOperationalError, MySQLDatabase):
+    # pass
+
+database = MySQLDatabase (
+    'socialnetworkingdb', 
+    threadlocals = True,
+    use_speedups = True,
     **{
         'host': '***REMOVED***', 
         'password': '***REMOVED***',
@@ -93,8 +101,18 @@ class TweetSentiment(BaseModel):
 
 @database.atomic()
 def bulk_insert_on_conflict_replace(Model, rows):
-    query = peewee.InsertQuery(Model, rows=rows)
-    query.upsert(upsert=True).execute()
+    try:
+        query = peewee.InsertQuery(Model, rows=rows)
+        query.upsert(upsert=True).execute()
+    except Exception as e:
+        print "Exception caught: ", str(e)
+        bulk_insert_on_conflict_replace(Model, rows)
+
+def disable_foreign_key_checks():
+    database.execute_sql("SET FOREIGN_KEY_CHECKS = 0;")
+
+def enable_foreign_key_checks():
+    database.execute_sql("SET FOREIGN_KEY_CHECKS = 1;")
 
 # lol = {'created_at': datetime.datetime(2012, 9, 9, 21, 17, 55), 
 # 'retweet_count': 0, 'user': u'215440345', 
@@ -102,3 +120,7 @@ def bulk_insert_on_conflict_replace(Model, rows):
 # 'id': u'244907511377965056'}
 
 # bulk_insert_on_conflict_replace(Tweet, [lol])
+
+# select count(*) from HASHTAG; select count(*) from TWEET; select count(*) from TWEETPOLITICAL; select count(*) from TWEETSENTIMENT; select count(*) from USER;
+
+# At 3:42 the program had been running for 4 minutes

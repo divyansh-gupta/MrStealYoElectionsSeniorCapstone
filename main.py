@@ -2,6 +2,7 @@ import os
 import json
 from tweepy import OAuthHandler
 from textblob import TextBlob
+from multiprocessing.dummy import Pool
 
 import globals
 import s3
@@ -11,6 +12,7 @@ class TwitterClient(object):
     def __init__(self):
         self.clean_tweet = globals.clean_tweet
         self.twitter_time_to_datetime = globals.twitter_time_to_datetime
+        self.file_key_prefix = '2012_data/cache-'
 
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
@@ -80,32 +82,37 @@ class TwitterClient(object):
         tweet_models = map(process_tweet, fetched_tweets)
         self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models)
             
-    def get_and_process_tweets(self):
-        file_key_prefix = '2012_data/cache-'
-        for x in xrange(0, 1):
-            opened_file = ''
-            file_key = file_key_prefix + str(x) + '.json'
-        
-            if os.path.exists(file_key) is False:
-                opened_file = s3.download_from_s3('social-networking-capstone', file_key, file_key, True)
-            else:
-                opened_file = open(file_key, 'r')
+    def get_and_process_tweets(self, x):
+        opened_file = ''
+        file_key = self.file_key_prefix + str(x) + '.json'
+    
+        if os.path.exists(file_key) is False:
+            opened_file = s3.download_from_s3('social-networking-capstone', file_key, file_key, True)
+        else:
+            opened_file = open(file_key, 'r')
 
-            fetched_tweets = opened_file.readlines()
-            print "File opened and read: ", file_key
-            self.process_tweets(fetched_tweets)
-            opened_file.close()
+        fetched_tweets = opened_file.readlines()
+        print "File opened and read: ", file_key
+        self.process_tweets(fetched_tweets)
+        opened_file.close()
+
+def top_level_get_and_process_tweets(x):
+    api = TwitterClient()
+    api.get_and_process_tweets(x)
 
 def main():
     if os.path.exists('2012_data') is False:
         os.makedirs('2012_data')
     if os.path.exists('2016_data') is False:
         os.makedirs('2016_data')
-    
-    api = TwitterClient()
-    database.connect()
-    api.get_and_process_tweets()
-    database.close()
+
+    pool = Pool()
+
+    files_to_process = xrange(0, 10)
+    pool.map(top_level_get_and_process_tweets, files_to_process)
+
+    pool.close()
+    pool.join()
 
 if __name__ == "__main__":
     main()
