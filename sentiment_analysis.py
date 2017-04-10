@@ -39,15 +39,29 @@ class TwitterClient(object):
         }
         return user_model
 
-    def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models):
+    def get_hashtag_models(self, hashtag_models, tweet_id, hashtags_json_array):
+        hashtag_count = len(hashtags_json_array)
+        for x in xrange(0, hashtag_count):
+            hashtag_model = {
+                'tweet': tweet_id,
+                'hashtag': hashtags_json_array[x]['text']
+            }
+            hashtag_models.append(hashtag_model)
+
+    def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models, hashtag_models):
         print "inserting users, size: ", len(user_models.values())
         bulk_insert_on_conflict_replace(User, user_models.values())
         print "inserting tweets, size: ", len(tweet_models)
         bulk_insert_on_conflict_replace(Tweet, tweet_models)
+        print "inserting tweet sentiments, size: ", len(tweet_sentiment_models)
+        bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models)
+        print "inserting hashtags, size: ", len(hashtag_models)
+        bulk_insert_on_conflict_replace(HashTag, hashtag_models)
 
     def process_tweets(self, fetched_tweets):
         user_models = {}
         tweet_sentiment_models = []
+        hashtag_models = []
         def process_tweet(tweet):
             tweet_json = json.loads(tweet)
             tweet_model = {
@@ -60,10 +74,11 @@ class TwitterClient(object):
             user_model = self.get_user_model(tweet_json['user'])
             tweet_model['user'] = user_model['id']
             user_models[user_model['id']] = user_model
+            self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             return tweet_model
         print "starting tweet processing"
         tweet_models = map(process_tweet, fetched_tweets)
-        self.insert_all_information_into_db(tweet_models, tweet_sentiment_models)
+        self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models)
             
     def get_and_process_tweets(self):
         file_key_prefix = '2012_data/cache-'
