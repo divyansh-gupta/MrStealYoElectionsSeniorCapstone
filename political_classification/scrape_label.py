@@ -8,7 +8,7 @@ path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 sys.path.append(path)
 import globals
 
-max_tweets = 300
+max_tweets = 100
 
 fname = 'labelled.json'
 with open(fname, mode='w', encoding='utf-8') as f:

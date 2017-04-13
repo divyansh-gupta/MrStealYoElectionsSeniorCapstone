@@ -48,14 +48,12 @@ CREATE TABLE TWEETSENTIMENT (
 	FOREIGN KEY (tweet_id) REFERENCES TWEET(ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Zakk fill in a create table statement for political table here.
--- Started it for you.
-
 CREATE TABLE TWEETPOLITICAL (
     tweet_id VARCHAR(100) PRIMARY KEY,
-
-    -- .... Stuff here..... --
-
+    democrat_prob DECIMAL(6, 5) NOT NULL,
+    republican_prob DECIMAL(6, 5) NOT NULL,
+    third_prob DECIMAL(6, 5) NOT NULL,
+    classification VARCHAR(100) NOT NULL,
     FOREIGN KEY (tweet_id) REFERENCES TWEET(ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

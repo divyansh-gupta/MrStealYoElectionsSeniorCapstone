@@ -13,7 +13,11 @@ class TwitterClient(object):
         self.clean_tweet = globals.clean_tweet
         self.twitter_time_to_datetime = globals.twitter_time_to_datetime
         self.file_key_prefix = '2012_data/cache-'
+        self.pclassifier = load_classifier()
 
+    def load_classifier(self, filename):
+        pass
+    
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
         tweet_sentiment_model = { 
@@ -40,6 +44,30 @@ class TwitterClient(object):
             'verified': user_json['verified'] 
         }
         return user_model
+    
+    def get_political_classification_models(self, tweet_model):
+        probs = self.pclassifier.probs(tweet_model['text'])
+        classification = ""
+        highest = 1
+        if probs[2] > probs[highest]:
+            highest = 2
+        if probs[3] > probs[highest]:
+            highest = 3
+        
+        if highest = 1:
+            classification = "democrat"
+        elif highest = 2:
+            classificaiton = "republican"
+        else:
+            classifcation = "third"
+        political_classification_model = {
+            'tweet': tweet_model['id'],
+            'democrat_prob': probs[1],
+            'republican_prob': probs[2],
+            'third_prob': probs[3],
+            'classification': classification
+        }
+        return political_classification_model
 
     def get_hashtag_models(self, hashtag_models, tweet_id, hashtags_json_array):
         hashtag_count = len(hashtags_json_array)
@@ -50,7 +78,7 @@ class TwitterClient(object):
             }
             hashtag_models.append(hashtag_model)
 
-    def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models, hashtag_models):
+    def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models):
         print "inserting users, size: ", len(user_models.values())
         bulk_insert_on_conflict_replace(User, user_models.values())
         print "inserting tweets, size: ", len(tweet_models)
@@ -59,11 +87,14 @@ class TwitterClient(object):
         bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models)
         print "inserting hashtags, size: ", len(hashtag_models)
         bulk_insert_on_conflict_replace(HashTag, hashtag_models)
+        print "inserting political classification, size: " len(political_classification_models)
+        bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models)
 
     def process_tweets(self, fetched_tweets):
         user_models = {}
         tweet_sentiment_models = []
         hashtag_models = []
+        political_classification_models = []
         def process_tweet(tweet):
             tweet_json = json.loads(tweet)
             tweet_model = {
@@ -77,10 +108,11 @@ class TwitterClient(object):
             tweet_model['user'] = user_model['id']
             user_models[user_model['id']] = user_model
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
+            political_classification_models.append(self.get_political_classification_model(tweet_model))
             return tweet_model
         print "starting tweet processing"
         tweet_models = map(process_tweet, fetched_tweets)
-        self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models)
+        self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
             
     def get_and_process_tweets(self, x):
         opened_file = ''

@@ -17,9 +17,20 @@ def load_tweets(fname):
     return data
 tweet_list = load_tweets(tweets_file)
 
+def weight_metric(tweet):
+    verified = tweet['user']['verified']
+    verified_wt = 0.25
+    followers = tweet['user']['followers_count']
+    followers_wt = 0.1
+    retweets = tweet['retweet_count']
+    retweets = 0.5
+    favorites = tweet['user']['favourites']
+    favorites_wt = 
+    
 for tweet in tweet_list:
-    tweet['classification'] = political_classifier.classify(tweet['text'])
-    pprint(tweet) 
+    classifcation = political_classifier.classify(tweet['text'])
+    tweet['classification'] = classification
+    pprint(classifcation) 
 
 
 

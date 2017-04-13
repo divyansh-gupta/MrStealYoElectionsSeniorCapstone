@@ -37,7 +37,15 @@ class Pclassifier:
         self.classifier = NaiveBayesClassifier(train_set, self.custom_extractor)
     
     def classify(self, text):
-        self.classifier.classify(text)
+        return self.classifier.classify(text)
+        
+    def probs(self, text):
+        probs = {}
+        prob_dist = self.classifier.prob_classify(text)
+        for label in self.classifier.labels():
+            probs[label] = prob_dist.prob(label)
+        return probs
+        
     
     def notable_features(self):
         self.classifier.show_informative_features()
