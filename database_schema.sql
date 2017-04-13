@@ -3,7 +3,8 @@
 --                      passwd="***REMOVED***",
 --                      db="socialnetworkingdb"
 
--- To connect type in terminal: mysql -h ***REMOVED*** -P 3306 -u ***REMOVED*** -p socialnetworkingdb
+-- To connect type in terminal: 
+-- mysql -h ***REMOVED*** -P 3306 -u ***REMOVED*** -p socialnetworkingdb
 
 SET FOREIGN_KEY_CHECKS = 0;
 

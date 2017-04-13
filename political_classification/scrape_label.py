@@ -11,10 +11,10 @@ import globals
 max_tweets = 100
 
 fname = 'labelled.json'
-with open(fname, mode='w', encoding='utf-8') as f:
+with open(fname, mode='w') as f:
     json.dump([], f)
 
-with open(fname, mode='r', encoding='utf-8') as feedsjson:
+with open(fname, mode='r') as feedsjson:
     feeds = json.load(feedsjson) 
 
 def get_tweets(screen_name):
@@ -41,7 +41,7 @@ def run(sn, label):
         print(e)
         exit()
     for tweet in tweet_list:
-        entry = {'text': tweet._json['text'], 'label':label.value}
+        entry = {'text': tweet._json['text'], 'label': label }
         feeds.append(entry)
     print("Done with " + sn)
         
@@ -49,13 +49,13 @@ accs = []
 with open('accounts.txt', 'r') as f:
     for line in f.read().splitlines():
         acc_name = line.split()[0]
-        classif = globals.Classifications(int(line.split()[1]))
+        classif = int(line.split()[1])
         accs.append((acc_name, classif))
     
 for acc in accs:
     run(acc[0], acc[1])
 
-with open(fname, mode='w', encoding='utf-8') as feedsjson:
+with open(fname, mode='w') as feedsjson:
     try:
         json.dump(feeds, feedsjson)
     except IOError as e:

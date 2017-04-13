@@ -97,6 +97,16 @@ class TweetSentiment(BaseModel):
     class Meta:
         db_table = 'TWEETSENTIMENT'
 
+class TweetPolitical(BaseModel):
+    classification = CharField()
+    democrat_prob = DecimalField()
+    republican_prob = DecimalField()
+    third_prob = DecimalField()
+    tweet = ForeignKeyField(db_column='tweet_id', primary_key=True, rel_model=Tweet, to_field='id')
+
+    class Meta:
+        db_table = 'TWEETPOLITICAL'
+
 ############ Real Code ###############
 
 @database.atomic()

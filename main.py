@@ -1,5 +1,6 @@
 import os
 import json
+import pickle
 from tweepy import OAuthHandler
 from textblob import TextBlob
 from multiprocessing.dummy import Pool
@@ -9,14 +10,11 @@ import s3
 from rds import *
 
 class TwitterClient(object):
-    def __init__(self):
+    def __init__(self, classifier):
         self.clean_tweet = globals.clean_tweet
         self.twitter_time_to_datetime = globals.twitter_time_to_datetime
         self.file_key_prefix = '2012_data/cache-'
-        self.pclassifier = load_classifier()
-
-    def load_classifier(self, filename):
-        pass
+        self.pclassifier = classifier
     
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
@@ -48,23 +46,23 @@ class TwitterClient(object):
     def get_political_classification_models(self, tweet_model):
         probs = self.pclassifier.probs(tweet_model['text'])
         classification = ""
-        highest = 1
-        if probs[2] > probs[highest]:
-            highest = 2
-        if probs[3] > probs[highest]:
-            highest = 3
+        highest = '1'
+        if probs['2'] > probs[highest]:
+            highest = '2'
+        if probs['3'] > probs[highest]:
+            highest = '3'
         
-        if highest = 1:
+        if highest == '1':
             classification = "democrat"
-        elif highest = 2:
+        elif highest == '2':
             classificaiton = "republican"
         else:
             classifcation = "third"
         political_classification_model = {
             'tweet': tweet_model['id'],
-            'democrat_prob': probs[1],
-            'republican_prob': probs[2],
-            'third_prob': probs[3],
+            'democrat_prob': probs['1'],
+            'republican_prob': probs['2'],
+            'third_prob': probs['3'],
             'classification': classification
         }
         return political_classification_model
@@ -87,7 +85,7 @@ class TwitterClient(object):
         bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models)
         print "inserting hashtags, size: ", len(hashtag_models)
         bulk_insert_on_conflict_replace(HashTag, hashtag_models)
-        print "inserting political classification, size: " len(political_classification_models)
+        print "inserting political classification, size: ", len(political_classification_models)
         bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models)
 
     def process_tweets(self, fetched_tweets):
@@ -125,11 +123,12 @@ class TwitterClient(object):
 
         fetched_tweets = opened_file.readlines()
         print "File opened and read: ", file_key
-        self.process_tweets(fetched_tweets)
+        self.process_twees(fetched_tweets)
         opened_file.close()
 
+pclassifier = None
 def top_level_get_and_process_tweets(x):
-    api = TwitterClient()
+    api = TwitterClient(pclassifier)
     api.get_and_process_tweets(x)
 
 def main():
@@ -137,6 +136,15 @@ def main():
         os.makedirs('2012_data')
     if os.path.exists('2016_data') is False:
         os.makedirs('2016_data')
+
+    classifier_file_name = 'c1.classifier'
+
+    # Loading classifier here
+    if os.path.exists(classifier_file_name) is False:
+   		s3.download_from_s3('social-networking-capstone', classifier_file_name, classifier_file_name, True)
+    classifier_file = open(classifier_file_name, 'rb')
+    pclassifier = pickle.load(classifier_file)
+    close(classifier_file)
 
     pool = Pool()
 
