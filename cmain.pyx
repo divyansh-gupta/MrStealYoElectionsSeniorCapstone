@@ -1,7 +1,6 @@
 import os
 import json
 import pickle
-import asyncio
 from textblob import TextBlob
 from multiprocessing import Pool
 
@@ -15,17 +14,15 @@ class TwitterClient(object):
         self.twitter_time_to_datetime = globals.twitter_time_to_datetime
         self.file_key_prefix = '2012_data/cache-'
         self.classifier_file_name = 'c1.classifier'
+        self.i = 0
         if os.path.exists(self.classifier_file_name) is False:
             print('downloading classifier file from s3')
             s3.download_from_s3('social-networking-capstone', self.classifier_file_name, self.classifier_file_name, True)
         print("loading classifier")
-        global lock
-        #lock.acquire()
         classifier_file = open(self.classifier_file_name, 'rb')
         self.pclassifier = pickle.load(classifier_file)
         classifier_file.close()
         print('classifier loaded')
-        #lock.release()
 
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
@@ -104,6 +101,7 @@ class TwitterClient(object):
         tweet_sentiment_models = []
         hashtag_models = []
         political_classification_models = []
+        global i
         def process_tweet(tweet):
             tweet_json = json.loads(tweet)
             tweet_model = {
@@ -118,6 +116,8 @@ class TwitterClient(object):
             user_models[user_model['id']] = user_model
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
+            print(str(self.i))
+            self.i = self.i + 1
             return tweet_model
         print("starting tweet processing")
         tweet_models = list(map(process_tweet, fetched_tweets))
