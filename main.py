@@ -57,7 +57,6 @@ class TwitterClient(object):
         return user_model
     
     def get_political_classification_model(self, tweet_model):
-        # print("political classification starting")
         probs = self.pclassifier.probs(tweet_model['tweet_text'])
         classification = ""
         highest = '1'
@@ -123,9 +122,12 @@ class TwitterClient(object):
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             return tweet_model
         print("starting tweet processing")
-        tweet_models = list(map(process_tweet, fetched_tweets))
+        pool = Pool(3)
+        tweet_models = list(pool.map(process_tweet, fetched_tweets))
         self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
-            
+        pool.join()
+        pool.close()
+
     def get_and_process_tweets(self, x):
         opened_file = ''
         file_key = self.file_key_prefix + str(x) + '.json'
@@ -150,7 +152,7 @@ def main():
     if os.path.exists('2016_data') is False:
         os.makedirs('2016_data')
 
-    pool = Pool(5)
+    pool = Pool(1)
 
     files_to_process = range(0, 10)
     pool.map(top_level_get_and_process_tweets, files_to_process)
