@@ -116,7 +116,8 @@ class TwitterClient(object):
             user_models[user_model['id']] = user_model
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
-            print(str(self.i))
+            if self.i % 1000 == 0:
+                print(str(self.i))
             self.i = self.i + 1
             return tweet_model
         print("starting tweet processing")
@@ -147,7 +148,7 @@ if os.path.exists('2012_data') is False:
 if os.path.exists('2016_data') is False:
     os.makedirs('2016_data')
 
-pool = Pool(1)
+pool = Pool(5)
 files_to_process = range(0, 10)
 pool.map(top_level_get_and_process_tweets, files_to_process)
 pool.close()
