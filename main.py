@@ -1,12 +1,15 @@
 import os
 import json
 import pickle
+import asyncio
 from textblob import TextBlob
 from multiprocessing import Pool
 
 import globals
 import s3
 from rds import *
+
+lock = asyncio.Lock()
 
 class TwitterClient(object):
     def __init__(self):
@@ -18,10 +21,13 @@ class TwitterClient(object):
             print('downloading classifier file from s3')
             s3.download_from_s3('social-networking-capstone', self.classifier_file_name, self.classifier_file_name, True)
         print("loading classifier")
+        global lock
+        lock.acquire()
         classifier_file = open(self.classifier_file_name, 'rb')
         self.pclassifier = pickle.load(classifier_file)
         classifier_file.close()
         print('classifier loaded')
+        lock.release()
     
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
