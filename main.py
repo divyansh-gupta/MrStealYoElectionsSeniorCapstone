@@ -9,8 +9,6 @@ import globals
 import s3
 from rds import *
 
-#lock = asyncio.Lock()
-
 class TwitterClient(object):
     def __init__(self):
         self.clean_tweet = globals.clean_tweet
@@ -122,11 +120,9 @@ class TwitterClient(object):
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             return tweet_model
         print("starting tweet processing")
-        pool = Pool(3)
-        tweet_models = list(pool.map(process_tweet, fetched_tweets))
+        tweet_models = list(map(process_tweet, fetched_tweets))
+        print("processing of tweets done, starting insert")
         self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
-        pool.join()
-        pool.close()
 
     def get_and_process_tweets(self, x):
         opened_file = ''
