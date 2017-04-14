@@ -7,7 +7,8 @@ political_classification/*.json
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.c
+*.html
 # C extensions
 *.so
 

@@ -26,10 +26,10 @@ class TwitterClient(object):
         classifier_file.close()
         print('classifier loaded')
         #lock.release()
-    
+
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
-        tweet_sentiment_model = { 
+        tweet_sentiment_model = {
             'tweet': tweet_model['id'],
             'polarity': analysis.sentiment.polarity
         }
@@ -45,15 +45,15 @@ class TwitterClient(object):
         user_model = {
             'id': user_json['id_str'],
             'followers_count': user_json['followers_count'],
-            'friends_count': user_json['friends_count'],  
+            'friends_count': user_json['friends_count'],
             'location': user_json['location'],
             'name': user_json['name'],
             'screen_name': user_json['screen_name'],
             'statuses_count': user_json['statuses_count'],
-            'verified': user_json['verified'] 
+            'verified': user_json['verified']
         }
         return user_model
-    
+
     def get_political_classification_model(self, tweet_model):
         probs = self.pclassifier.probs(tweet_model['tweet_text'])
         classification = ""
@@ -127,7 +127,7 @@ class TwitterClient(object):
     def get_and_process_tweets(self, x):
         opened_file = ''
         file_key = self.file_key_prefix + str(x) + '.json'
-    
+
         if os.path.exists(file_key) is False:
             opened_file = s3.download_from_s3('social-networking-capstone', file_key, file_key, True)
         else:
@@ -142,19 +142,13 @@ def top_level_get_and_process_tweets(x):
     api = TwitterClient()
     api.get_and_process_tweets(x)
 
-def main():
-    if os.path.exists('2012_data') is False:
-        os.makedirs('2012_data')
-    if os.path.exists('2016_data') is False:
-        os.makedirs('2016_data')
+if os.path.exists('2012_data') is False:
+    os.makedirs('2012_data')
+if os.path.exists('2016_data') is False:
+    os.makedirs('2016_data')
 
-    pool = Pool(1)
-
-    files_to_process = range(0, 10)
-    pool.map(top_level_get_and_process_tweets, files_to_process)
-
-    pool.close()
-    pool.join()
-
-if __name__ == "__main__":
-    main()
+pool = Pool(1)
+files_to_process = range(0, 10)
+pool.map(top_level_get_and_process_tweets, files_to_process)
+pool.close()
+pool.join()
