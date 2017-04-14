@@ -9,7 +9,7 @@ import globals
 import s3
 from rds import *
 
-lock = asyncio.Lock()
+#lock = asyncio.Lock()
 
 class TwitterClient(object):
     def __init__(self):
@@ -22,12 +22,12 @@ class TwitterClient(object):
             s3.download_from_s3('social-networking-capstone', self.classifier_file_name, self.classifier_file_name, True)
         print("loading classifier")
         global lock
-        lock.acquire()
+        #lock.acquire()
         classifier_file = open(self.classifier_file_name, 'rb')
         self.pclassifier = pickle.load(classifier_file)
         classifier_file.close()
         print('classifier loaded')
-        lock.release()
+        #lock.release()
     
     def get_tweet_sentiment(self, tweet_model):
         analysis = TextBlob(self.clean_tweet(tweet_model['tweet_text']))
@@ -150,7 +150,7 @@ def main():
     if os.path.exists('2016_data') is False:
         os.makedirs('2016_data')
 
-    pool = Pool(10)
+    pool = Pool(5)
 
     files_to_process = range(0, 10)
     pool.map(top_level_get_and_process_tweets, files_to_process)
