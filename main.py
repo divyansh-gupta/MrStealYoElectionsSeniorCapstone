@@ -1,7 +1,6 @@
 import os
 import json
 import pickle
-from tweepy import OAuthHandler
 from textblob import TextBlob
 from multiprocessing.dummy import Pool
 
@@ -43,15 +42,15 @@ class TwitterClient(object):
         }
         return user_model
     
-    def get_political_classification_models(self, tweet_model):
-        probs = self.pclassifier.probs(tweet_model['text'])
+    def get_political_classification_model(self, tweet_model):
+        probs = self.pclassifier.probs(tweet_model['tweet_text'])
         classification = ""
         highest = '1'
         if probs['2'] > probs[highest]:
             highest = '2'
-        if probs['3'] > probs[highest]:
-            highest = '3'
-        
+        # if probs['3'] > probs[highest]:
+            # highest = '3'
+
         if highest == '1':
             classification = "democrat"
         elif highest == '2':
@@ -62,14 +61,14 @@ class TwitterClient(object):
             'tweet': tweet_model['id'],
             'democrat_prob': probs['1'],
             'republican_prob': probs['2'],
-            'third_prob': probs['3'],
+            'third_prob': 0.000,
             'classification': classification
         }
         return political_classification_model
 
     def get_hashtag_models(self, hashtag_models, tweet_id, hashtags_json_array):
         hashtag_count = len(hashtags_json_array)
-        for x in xrange(0, hashtag_count):
+        for x in range(0, hashtag_count):
             hashtag_model = {
                 'tweet': tweet_id,
                 'hashtag': hashtags_json_array[x]['text'].lower()
@@ -77,15 +76,15 @@ class TwitterClient(object):
             hashtag_models.append(hashtag_model)
 
     def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models):
-        print "inserting users, size: ", len(user_models.values())
+        print("inserting users, size: " + str(len(user_models.values())))
         bulk_insert_on_conflict_replace(User, user_models.values())
-        print "inserting tweets, size: ", len(tweet_models)
+        print ("inserting tweets, size: " + str(len(tweet_models)))
         bulk_insert_on_conflict_replace(Tweet, tweet_models)
-        print "inserting tweet sentiments, size: ", len(tweet_sentiment_models)
+        print ("inserting tweet sentiments, size: " + str(len(tweet_sentiment_models)))
         bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models)
-        print "inserting hashtags, size: ", len(hashtag_models)
+        print ("inserting hashtags, size: " + str(len(hashtag_models)))
         bulk_insert_on_conflict_replace(HashTag, hashtag_models)
-        print "inserting political classification, size: ", len(political_classification_models)
+        print ("inserting political classification, size: " + str(len(political_classification_models)))
         bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models)
 
     def process_tweets(self, fetched_tweets):
@@ -108,8 +107,8 @@ class TwitterClient(object):
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             return tweet_model
-        print "starting tweet processing"
-        tweet_models = map(process_tweet, fetched_tweets)
+        print("starting tweet processing")
+        tweet_models = list(map(process_tweet, fetched_tweets))
         self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
             
     def get_and_process_tweets(self, x):
@@ -122,8 +121,8 @@ class TwitterClient(object):
             opened_file = open(file_key, 'r')
 
         fetched_tweets = opened_file.readlines()
-        print "File opened and read: ", file_key
-        self.process_twees(fetched_tweets)
+        print("File opened and read: " + file_key)
+        self.process_tweets(fetched_tweets)
         opened_file.close()
 
 pclassifier = None
@@ -141,14 +140,17 @@ def main():
 
     # Loading classifier here
     if os.path.exists(classifier_file_name) is False:
-   		s3.download_from_s3('social-networking-capstone', classifier_file_name, classifier_file_name, True)
+        print('downloading classifier file from s3')
+        s3.download_from_s3('social-networking-capstone', classifier_file_name, classifier_file_name, True)
     classifier_file = open(classifier_file_name, 'rb')
+    global pclassifier
     pclassifier = pickle.load(classifier_file)
-    close(classifier_file)
+    classifier_file.close()
+    print('classifier loaded')
 
     pool = Pool()
 
-    files_to_process = xrange(0, 10)
+    files_to_process = range(0, 10)
     pool.map(top_level_get_and_process_tweets, files_to_process)
 
     pool.close()

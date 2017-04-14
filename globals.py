@@ -43,7 +43,7 @@ class Pclassifier:
         probs = {}
         prob_dist = self.classifier.prob_classify(text)
         for label in self.classifier.labels():
-            probs[label] = prob_dist.prob(label)
+            probs[str(label)] = prob_dist.prob(label)
         return probs
         
     

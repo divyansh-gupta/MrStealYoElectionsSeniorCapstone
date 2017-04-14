@@ -115,7 +115,7 @@ def bulk_insert_on_conflict_replace(Model, rows):
         query = peewee.InsertQuery(Model, rows=rows)
         query.upsert(upsert=True).execute()
     except Exception as e:
-        print "Exception caught: ", str(e)
+        print("Exception caught: " + str(e))
         bulk_insert_on_conflict_replace(Model, rows)
 
 def disable_foreign_key_checks():
