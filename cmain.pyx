@@ -93,8 +93,8 @@ class TwitterClient(object):
         bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models)
         print ("inserting hashtags, size: " + str(len(hashtag_models)))
         bulk_insert_on_conflict_replace(HashTag, hashtag_models)
-        # print ("inserting political classification, size: " + str(len(political_classification_models)))
-        # bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models)
+        print ("inserting political classification, size: " + str(len(political_classification_models)))
+        bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models)
 
     def process_tweets(self, fetched_tweets):
         user_models = {}
@@ -115,7 +115,7 @@ class TwitterClient(object):
             tweet_model['user'] = user_model['id']
             user_models[user_model['id']] = user_model
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
-            # political_classification_models.append(self.get_political_classification_model(tweet_model))
+            political_classification_models.append(self.get_political_classification_model(tweet_model))
             if self.i % 1000 == 0:
                 print(str(self.i))
             self.i = self.i + 1
