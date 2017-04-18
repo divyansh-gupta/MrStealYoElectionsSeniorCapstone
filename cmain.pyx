@@ -101,7 +101,6 @@ class TwitterClient(object):
         tweet_sentiment_models = []
         hashtag_models = []
         political_classification_models = []
-        global i
         def process_tweet(tweet):
             tweet_json = json.loads(tweet)
             tweet_model = {
@@ -138,18 +137,3 @@ class TwitterClient(object):
         print("File opened and read: " + file_key)
         self.process_tweets(fetched_tweets)
         opened_file.close()
-
-def top_level_get_and_process_tweets(x):
-    api = TwitterClient()
-    api.get_and_process_tweets(x)
-
-if os.path.exists('2012_data') is False:
-    os.makedirs('2012_data')
-if os.path.exists('2016_data') is False:
-    os.makedirs('2016_data')
-
-pool = Pool(1)
-files_to_process = range(0, 10)
-pool.map(top_level_get_and_process_tweets, files_to_process)
-pool.close()
-pool.join()
