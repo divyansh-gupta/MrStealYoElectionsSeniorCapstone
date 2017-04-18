@@ -2,8 +2,7 @@ import boto3
 import uuid
 import json
 
-sqs = boto3.resource('sqs', region_name='us-east-1')
-
+sqs = boto3.resource('sqs', region_name='us-east-1', aws_access_key_id='***REMOVED***', aws_secret_access_key='***REMOVED***')
 def get_queue(name):
     return sqs.get_queue_by_name (
         QueueName=name
