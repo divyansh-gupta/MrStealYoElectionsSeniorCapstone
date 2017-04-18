@@ -13,7 +13,7 @@ if os.path.exists('2012_data') is False:
 if os.path.exists('2016_data') is False:
     os.makedirs('2016_data')
 
-queue_2012 = sqs.get_queue('2012.fifo')
+queue_2012 = sqs.get_queue('2012')
 
 def long_poll_2012():
     messages = []

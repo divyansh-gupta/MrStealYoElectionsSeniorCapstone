@@ -98,6 +98,7 @@ class TwitterClient(object):
 
     def process_tweets(self, fetched_tweets):
         user_models = {}
+        tweet_models = []
         tweet_sentiment_models = []
         hashtag_models = []
         political_classification_models = []
@@ -115,14 +116,18 @@ class TwitterClient(object):
             user_models[user_model['id']] = user_model
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
-            if self.i % 1000 == 0:
-                print(str(self.i))
+            tweet_models.append(tweet_model)
             self.i = self.i + 1
-            return tweet_model
+            if self.i % 1000 == 0:
+                self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
+                user_models.clear()
+                tweet_models.clear()
+                tweet_sentiment_models.clear()
+                hashtag_models.clear()
+                political_classification_models.clear()
         print("starting tweet processing")
         tweet_models = list(map(process_tweet, fetched_tweets))
-        print("processing of tweets done, starting insert")
-        self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
+        print("processing of tweets done")
 
     def get_and_process_tweets(self, x):
         opened_file = ''

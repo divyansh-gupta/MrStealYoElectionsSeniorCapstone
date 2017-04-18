@@ -10,6 +10,6 @@ def queue_task(url, queue, message_body):
 
 def queue_2012_tasks(start_inclusive, end_exclusive):
 	for i in range(start_inclusive, end_exclusive):
-		queue_task("***REMOVED***", "2012.fifo", i)
+		queue_task("***REMOVED***", "2012", i)
 
-queue_2012_tasks(0, 10)
+queue_2012_tasks(0, 1)
