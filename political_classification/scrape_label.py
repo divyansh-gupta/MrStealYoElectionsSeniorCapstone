@@ -8,8 +8,6 @@ path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 sys.path.append(path)
 import globals
 
-max_tweets = 100
-
 fname = 'labelled.json'
 with open(fname, mode='w') as f:
     json.dump([], f)
@@ -24,7 +22,7 @@ def get_tweets(screen_name):
         print ("Sn: {0} likely incorrect".format(screen_name))
     alltweets.extend(new_tweets)
     oldest = alltweets[-1].id - 1
-    while len(alltweets) < max_tweets and len(new_tweets) > 0:
+    while len(new_tweets) > 0:
             new_tweets = globals.api.user_timeline(screen_name = screen_name,count=200,max_id=oldest)
             alltweets.extend(new_tweets)
             oldest = alltweets[-1].id - 1
@@ -40,9 +38,14 @@ def run(sn, label):
     except globals.tweepy.TweepError as e:
         print(e)
         exit()
-    for tweet in tweet_list:
-        entry = {'text': tweet._json['text'], 'label': label }
-        feeds.append(entry)
+    if len(tweet_list) > 150:
+        for tweet in random.sample(tweet_list, 150):
+            entry = {'text': tweet._json['text'], 'label': label }
+            feeds.append(entry)
+    else:
+        for tweet in tweet_list:
+            entry = {'text': tweet._json['text'], 'label': label }
+            feeds.append(entry)
     print("Done with " + sn)
         
 accs = []

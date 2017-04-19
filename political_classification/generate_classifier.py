@@ -33,23 +33,29 @@ def normalize(t):
 
 #removes stopwords, hyperlinks, and usernames
 def get_whole_wordset(alltweets, stopwordlist):
-    wordset = []
+    wordset = {}
     for entry in alltweets:
         tokens = entry[0].split()
         for t in tokens:
+            normalized = normalize(t)
             if '@' in t or 'http' in t or len(t) < 3:
                 pass
             else:
-                if normalize(t) not in stopwordlist:
-                    wordset.append(normalize(t))
-
-    return wordset
-(train, test) = split_labels(0.2)
+                if normalized not in stopwordlist:
+                    if normalized not in wordset:
+                        wordset[normalized] = 0
+                    else:
+                        wordset[normalized]+=1
+    s = [(k, wordset[k]) for k in sorted(wordset, key=wordset.get, reverse=True)]
+    return [k for k,v in s]
+(train, test) = split_labels(0.1)
 
 with open('stop-word-list.txt', 'r') as f:
     stopwordlist = f.read().splitlines()
     
-wordset = set(get_whole_wordset(train+test, stopwordlist))
+wordset = get_whole_wordset(train+test, stopwordlist)
+
+wordset = wordset[0:int(len(wordset)*.7)]
 print(len(wordset))
 
 print(len(train))
@@ -61,7 +67,9 @@ elapsed = end - start
 
 print('Took {0} seconds to classify {1} tweets'.format(str(elapsed), str(len(train))))
 
-pclass.notable_features()
+#pclass.notable_features()
+
+#print(pclass.classifier.pretty_format())
 
 pclass.test(test)
 

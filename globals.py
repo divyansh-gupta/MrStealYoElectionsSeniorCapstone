@@ -2,7 +2,7 @@ from enum import Enum
 import tweepy
 import pytz
 import re
-from textblob.classifiers import NaiveBayesClassifier
+from textblob.classifiers import NaiveBayesClassifier, DecisionTreeClassifier
 from textblob.utils import strip_punc
 from datetime import datetime
 
@@ -34,7 +34,7 @@ class Pclassifier:
         return features
     
     def train(self, train_set):
-        self.classifier = NaiveBayesClassifier(train_set, self.custom_extractor)
+        self.classifier = DecisionTreeClassifier(train_set, self.custom_extractor)
     
     def classify(self, text):
         return self.classifier.classify(text)
