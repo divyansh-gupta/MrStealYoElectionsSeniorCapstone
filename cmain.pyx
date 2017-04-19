@@ -118,7 +118,7 @@ class TwitterClient(object):
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             tweet_models.append(tweet_model)
             self.i = self.i + 1
-            if self.i % 1000 == 0:
+            if self.i % 2500 == 0:
                 self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
                 user_models.clear()
                 tweet_models.clear()
