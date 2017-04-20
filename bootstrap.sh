@@ -13,4 +13,4 @@ sudo printf "[default]\naws_access_key_id = ***REMOVED***\naws_secret_access_key
 sudo printf "[default]\nregion=us-east-1" > ~/.aws/config;
 cd /home/***REMOVED***/sa_capstone_elections_project;
 chmod 777 /home/***REMOVED***/sa_capstone_elections_project/*;
-screen -d -m python3 2012_consumer.py;
+screen -d -m -L python3 2012_consumer.py;

@@ -1,6 +1,7 @@
 import MySQLdb
 import peewee
 import datetime
+import time
 from peewee import *
 from playhouse.shortcuts import RetryOperationalError
 
@@ -13,8 +14,8 @@ import globals
 #                      passwd="***REMOVED***",
 #                      db="socialnetworkingdb")
 
-# you must create a Cursor object. It will let
-#  you execute all the queries you need
+# # you must create a Cursor object. It will let
+# #  you execute all the queries you need
 # cur = db.cursor()
 
 # Use all the SQL you like
@@ -38,9 +39,7 @@ import globals
     # pass
 
 database = MySQLDatabase (
-    'socialnetworkingdb', 
-    threadlocals = True,
-    use_speedups = True,
+    'socialnetworkingdb',
     **{
         'host': '***REMOVED***', 
         'password': '***REMOVED***',
@@ -109,28 +108,33 @@ class TweetPolitical(BaseModel):
 
 ############ Real Code ###############
 
-@database.atomic()
-def bulk_insert_on_conflict_replace(Model, rows):
+# @database.atomic()
+def bulk_insert_on_conflict_replace(Model, rows, attempts):
+    try:
+        database.connect()
+    except Exception as e:
+        print("Connection already open. Caught it tho!")
+        print("Exception caught: " + str(e))
+    if (attempts == 5):
+        database.execute_sql("UNLOCK TABLES;")
+        database.close()
+        print("I GIVE UP!!")
+        return
+    database.execute_sql('LOCK TABLES TWEET WRITE, HASHTAG WRITE, TWEETPOLITICAL WRITE, TWEETSENTIMENT WRITE, USER WRITE, WRITELOCK WRITE;')
     try:
         query = peewee.InsertQuery(Model, rows=rows)
         query.upsert(upsert=True).execute()
     except Exception as e:
         print("Exception caught: " + str(e))
-        bulk_insert_on_conflict_replace(Model, rows)
-
-def disable_foreign_key_checks():
-    database.execute_sql("SET FOREIGN_KEY_CHECKS = 0;")
-
-def enable_foreign_key_checks():
-    database.execute_sql("SET FOREIGN_KEY_CHECKS = 1;")
+        bulk_insert_on_conflict_replace(Model, rows, attempts + 1)
+    database.execute_sql("UNLOCK TABLES;")
+    database.close()
 
 # lol = {'created_at': datetime.datetime(2012, 9, 9, 21, 17, 55), 
-# 'retweet_count': 0, 'user': u'215440345', 
+# 'retweet_count': 0, 'user': u'2394723423940820', 
 # 'tweet_text': u'Obama vies for health care edge in Florida - http://t.co/OcISvreb http://t.co/FsJ7xgGW #florida', 
 # 'id': u'244907511377965056'}
 
-# bulk_insert_on_conflict_replace(Tweet, [lol])
+# bulk_insert_on_conflict_replace(Tweet, [lol], 0)
 
-# select count(*) from HASHTAG; select count(*) from TWEET; select count(*) from TWEETPOLITICAL; select count(*) from TWEETSENTIMENT; select count(*) from USER;
-
-# At 3:42 the program had been running for 4 minutes
+# print("script continued running after previous fail")
