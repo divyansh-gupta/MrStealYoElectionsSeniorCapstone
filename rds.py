@@ -110,8 +110,12 @@ class TweetPolitical(BaseModel):
 
 # @database.atomic()
 def bulk_insert_on_conflict_replace(Model, rows):
-    database.connect()
-    database.execute_sql('LOCK TABLES TWEET WRITE, HASHTAG WRITE, TWEETPOLITICAL WRITE, TWEET SENTIMENT WRITE, USER WRITE, WRITELOCK WRITE;')
+    try:
+        database.connect()
+    except Exception as e:
+        print("Connection already open. Caught it tho!")
+        print("Exception caught: " + str(e))
+    database.execute_sql('LOCK TABLES TWEET WRITE, HASHTAG WRITE, TWEETPOLITICAL WRITE, TWEETSENTIMENT WRITE, USER WRITE, WRITELOCK WRITE;')
     try:
         query = peewee.InsertQuery(Model, rows=rows)
         query.upsert(upsert=True).execute()
@@ -121,9 +125,10 @@ def bulk_insert_on_conflict_replace(Model, rows):
     database.execute_sql("UNLOCK TABLES;")
     database.close()
 
-# lol = {'created_at': datetime.datetime(2012, 9, 9, 21, 17, 55), 
-# 'retweet_count': 0, 'user': u'215440345', 
-# 'tweet_text': u'Obama vies for health care edge in Florida - http://t.co/OcISvreb http://t.co/FsJ7xgGW #florida', 
-# 'id': u'244907511377965056'}
+# for x in range(1, 10000):
+#     lol = {'created_at': datetime.datetime(2012, 9, 9, 21, 17, 55), 
+#     'retweet_count': 0, 'user': u'215440345', 
+#     'tweet_text': u'Obama vies for health care edge in Florida - http://t.co/OcISvreb http://t.co/FsJ7xgGW #florida', 
+#     'id': u'244907511377965056'}
 
-# bulk_insert_on_conflict_replace(Tweet, [lol])
+#     bulk_insert_on_conflict_replace(Tweet, [lol])
