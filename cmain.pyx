@@ -15,6 +15,7 @@ class TwitterClient(object):
         self.file_key_prefix = '2012_data/cache-'
         self.classifier_file_name = 'c1.classifier'
         self.i = 0
+        self.every_100th = 0
         if os.path.exists(self.classifier_file_name) is False:
             print('downloading classifier file from s3')
             s3.download_from_s3('social-networking-capstone', self.classifier_file_name, self.classifier_file_name, True)
@@ -103,6 +104,9 @@ class TwitterClient(object):
         hashtag_models = []
         political_classification_models = []
         def process_tweet(tweet):
+            self.every_100th += 1
+            if (self.every_100th % 100 != 0):
+                return "null"
             tweet_json = json.loads(tweet)
             tweet_model = {
                 'tweet_text': tweet_json['text'],
@@ -118,7 +122,7 @@ class TwitterClient(object):
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             tweet_models.append(tweet_model)
             self.i = self.i + 1
-            if self.i % 2500 == 0:
+            if self.i % 5000 == 0:
                 self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
                 user_models.clear()
                 tweet_models.clear()
@@ -126,7 +130,10 @@ class TwitterClient(object):
                 hashtag_models.clear()
                 political_classification_models.clear()
         print("starting tweet processing")
-        tweet_models = list(map(process_tweet, fetched_tweets))
+        fetched_tweets_len = len(fetched_tweets)
+        for x in range(0, fetched_tweets_len):
+            process_tweet(fetched_tweets[x])
+        # map(process_tweet, fetched_tweets)
         print("processing of tweets done")
 
     def get_and_process_tweets(self, x):
