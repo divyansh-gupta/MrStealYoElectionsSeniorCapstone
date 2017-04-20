@@ -108,12 +108,17 @@ class TwitterClient(object):
             if (self.every_100th % 100 != 0):
                 return "null"
             tweet_json = json.loads(tweet)
-            tweet_model = {
-                'tweet_text': tweet_json['text'],
-                'id': tweet_json['id_str'],
-                'created_at': self.twitter_time_to_datetime(tweet_json['created_at']),
-                'retweet_count': tweet_json['retweet_count']
-            }
+            try:
+                tweet_model = {
+                    'tweet_text': tweet_json['text'],
+                    'id': tweet_json['id_str'],
+                    'created_at': self.twitter_time_to_datetime(tweet_json['created_at']),
+                    'retweet_count': tweet_json['retweet_count']
+                }
+            except Exception as e:
+                self.every_100th -= 1
+                print("Some expected keyvalue didn't exist")
+                return "null"
             tweet_sentiment_models.append(self.get_tweet_sentiment(tweet_model))
             user_model = self.get_user_model(tweet_json['user'])
             tweet_model['user'] = user_model['id']
