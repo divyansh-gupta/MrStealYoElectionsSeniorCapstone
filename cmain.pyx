@@ -86,15 +86,15 @@ class TwitterClient(object):
 
     def insert_all_information_into_db(self, user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models):
         print("inserting users, size: " + str(len(user_models.values())))
-        bulk_insert_on_conflict_replace(User, user_models.values())
+        bulk_insert_on_conflict_replace(User, user_models.values(), 0)
         print ("inserting tweets, size: " + str(len(tweet_models)))
-        bulk_insert_on_conflict_replace(Tweet, tweet_models)
+        bulk_insert_on_conflict_replace(Tweet, tweet_models, 0)
         print ("inserting tweet sentiments, size: " + str(len(tweet_sentiment_models)))
-        bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models)
+        bulk_insert_on_conflict_replace(TweetSentiment, tweet_sentiment_models, 0)
         print ("inserting hashtags, size: " + str(len(hashtag_models)))
-        bulk_insert_on_conflict_replace(HashTag, hashtag_models)
+        bulk_insert_on_conflict_replace(HashTag, hashtag_models, 0)
         print ("inserting political classification, size: " + str(len(political_classification_models)))
-        bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models)
+        bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models, 0)
 
     def process_tweets(self, fetched_tweets):
         user_models = {}
