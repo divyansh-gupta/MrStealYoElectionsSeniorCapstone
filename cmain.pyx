@@ -105,7 +105,7 @@ class TwitterClient(object):
         political_classification_models = []
         def process_tweet(tweet):
             self.every_100th += 1
-            if (self.every_100th % 100 != 0):
+            if (self.every_100th % 50 != 0):
                 return "null"
             tweet_json = json.loads(tweet)
             try:
@@ -126,20 +126,12 @@ class TwitterClient(object):
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             tweet_models.append(tweet_model)
-            self.i = self.i + 1
-            if self.i % 5000 == 0:
-                self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
-                user_models.clear()
-                tweet_models.clear()
-                tweet_sentiment_models.clear()
-                hashtag_models.clear()
-                political_classification_models.clear()
         print("starting tweet processing")
         fetched_tweets_len = len(fetched_tweets)
         for x in range(0, fetched_tweets_len):
             process_tweet(fetched_tweets[x])
-        # map(process_tweet, fetched_tweets)
         print("processing of tweets done")
+        self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
 
     def get_and_process_tweets(self, x):
         opened_file = ''
