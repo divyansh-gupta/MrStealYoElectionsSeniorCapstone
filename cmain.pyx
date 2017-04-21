@@ -58,15 +58,10 @@ class TwitterClient(object):
         highest = '1'
         if probs['2'] > probs[highest]:
             highest = '2'
-        if probs['3'] > probs[highest]:
-            highest = '3'
-
         if highest == '1':
             classification = "democrat"
         elif highest == '2':
-            classificaiton = "republican"
-        else:
-            classifcation = "third"
+            classification = "republican"
         political_classification_model = {
             'tweet': tweet_model['id'],
             'democrat_prob': probs['1'],
