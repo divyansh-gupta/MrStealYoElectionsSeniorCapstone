@@ -115,7 +115,7 @@ def bulk_insert_on_conflict_replace(Model, rows, attempts):
     except Exception as e:
         print("Connection already open. Caught it tho!")
         print("Exception caught: " + str(e))
-    if (attempts == 5):
+    if (attempts == 10):
         database.execute_sql("UNLOCK TABLES;")
         database.close()
         print("I GIVE UP!!")

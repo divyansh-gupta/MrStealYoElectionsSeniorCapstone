@@ -15,6 +15,7 @@ class TwitterClient(object):
         self.file_key_prefix = '2012_data/cache-'
         self.classifier_file_name = 'c1.classifier'
         self.i = 0
+        self.every_100th = 0
         if os.path.exists(self.classifier_file_name) is False:
             print('downloading classifier file from s3')
             s3.download_from_s3('social-networking-capstone', self.classifier_file_name, self.classifier_file_name, True)
@@ -57,15 +58,10 @@ class TwitterClient(object):
         highest = '1'
         if probs['2'] > probs[highest]:
             highest = '2'
-        if probs['3'] > probs[highest]:
-            highest = '3'
-
         if highest == '1':
             classification = "democrat"
         elif highest == '2':
-            classificaiton = "republican"
-        else:
-            classifcation = "third"
+            classification = "republican"
         political_classification_model = {
             'tweet': tweet_model['id'],
             'democrat_prob': probs['1'],
@@ -103,13 +99,21 @@ class TwitterClient(object):
         hashtag_models = []
         political_classification_models = []
         def process_tweet(tweet):
+            self.every_100th += 1
+            if (self.every_100th % 50 != 0):
+                return "null"
             tweet_json = json.loads(tweet)
-            tweet_model = {
-                'tweet_text': tweet_json['text'],
-                'id': tweet_json['id_str'],
-                'created_at': self.twitter_time_to_datetime(tweet_json['created_at']),
-                'retweet_count': tweet_json['retweet_count']
-            }
+            try:
+                tweet_model = {
+                    'tweet_text': tweet_json['text'],
+                    'id': tweet_json['id_str'],
+                    'created_at': self.twitter_time_to_datetime(tweet_json['created_at']),
+                    'retweet_count': tweet_json['retweet_count']
+                }
+            except Exception as e:
+                self.every_100th -= 1
+                print("Some expected keyvalue didn't exist")
+                return "null"
             tweet_sentiment_models.append(self.get_tweet_sentiment(tweet_model))
             user_model = self.get_user_model(tweet_json['user'])
             tweet_model['user'] = user_model['id']
@@ -117,17 +121,12 @@ class TwitterClient(object):
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             tweet_models.append(tweet_model)
-            self.i = self.i + 1
-            if self.i % 2500 == 0:
-                self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
-                user_models.clear()
-                tweet_models.clear()
-                tweet_sentiment_models.clear()
-                hashtag_models.clear()
-                political_classification_models.clear()
         print("starting tweet processing")
-        tweet_models = list(map(process_tweet, fetched_tweets))
+        fetched_tweets_len = len(fetched_tweets)
+        for x in range(0, fetched_tweets_len):
+            process_tweet(fetched_tweets[x])
         print("processing of tweets done")
+        self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
 
     def get_and_process_tweets(self, x):
         opened_file = ''

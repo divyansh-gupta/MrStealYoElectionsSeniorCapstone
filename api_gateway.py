@@ -12,4 +12,4 @@ def queue_2012_tasks(start_inclusive, end_exclusive):
 	for i in range(start_inclusive, end_exclusive):
 		queue_task("***REMOVED***", "2012", i)
 
-queue_2012_tasks(10, 50)
+queue_2012_tasks(0, 1)
