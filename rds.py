@@ -10,7 +10,7 @@ import globals
 ############ EXAMPLE CODE ###############
 
 # db = MySQLdb.connect(host="***REMOVED***",
-#                      user="***REMOVED***",        
+#                      user="***REMOVED***",
 #                      passwd="***REMOVED***",
 #                      db="socialnetworkingdb")
 
@@ -41,7 +41,7 @@ import globals
 database = MySQLDatabase (
     'socialnetworkingdb',
     **{
-        'host': '***REMOVED***', 
+        'host': '***REMOVED***',
         'password': '***REMOVED***',
         'user': '***REMOVED***'
      }
@@ -130,9 +130,9 @@ def bulk_insert_on_conflict_replace(Model, rows, attempts):
     database.execute_sql("UNLOCK TABLES;")
     database.close()
 
-# lol = {'created_at': datetime.datetime(2012, 9, 9, 21, 17, 55), 
-# 'retweet_count': 0, 'user': u'2394723423940820', 
-# 'tweet_text': u'Obama vies for health care edge in Florida - http://t.co/OcISvreb http://t.co/FsJ7xgGW #florida', 
+# lol = {'created_at': datetime.datetime(2012, 9, 9, 21, 17, 55),
+# 'retweet_count': 0, 'user': u'2394723423940820',
+# 'tweet_text': u'Obama vies for health care edge in Florida - http://t.co/OcISvreb http://t.co/FsJ7xgGW #florida',
 # 'id': u'244907511377965056'}
 
 # bulk_insert_on_conflict_replace(Tweet, [lol], 0)
