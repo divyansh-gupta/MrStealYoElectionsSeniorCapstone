@@ -54,6 +54,10 @@ class TwitterClient(object):
 
     def get_political_classification_model(self, tweet_model):
         classification = self.pclassifier.classify(tweet_model['tweet_text'])
+        if classification == 1:
+            classification = '_democratic'
+        elif classification == 2:
+            classification = '_republican'
         political_classification_model = {
             'tweet': tweet_model['id'],
             'democrat_prob': 0.00,

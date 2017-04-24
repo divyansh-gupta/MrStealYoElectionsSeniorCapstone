@@ -32,8 +32,8 @@ import globals
 
 ''' The following models were autoproduced using this command:
     python -m pwiz -e mysql \
-	-H ***REMOVED*** \
-	-u ***REMOVED*** socialnetworkingdb -P >> Models.py
+    -H ***REMOVED*** \
+    -u ***REMOVED*** socialnetworkingdb -P >> Models.py
 '''
 
 # class RetryDB(RetryOperationalError, MySQLDatabase):
