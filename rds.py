@@ -4,6 +4,7 @@ import datetime
 import time
 from peewee import *
 from playhouse.shortcuts import RetryOperationalError
+from playhouse.read_slave import ReadSlaveModel
 
 import globals
 
@@ -47,12 +48,22 @@ database = MySQLDatabase (
      }
 )
 
+read_replica = MySQLDatabase (
+    'socialnetworkingdb',
+    **{
+        'host': '***REMOVED***',
+        'password': '***REMOVED***',
+        'user': '***REMOVED***'
+     }
+)
+
 class UnknownField(object):
     def __init__(self, *_, **__): pass
 
-class BaseModel(Model):
+class BaseModel(ReadSlaveModel):
     class Meta:
         database = database
+        read_slaves = (read_replica)
 
 class User(BaseModel):
     id = CharField(db_column='ID', primary_key=True)

@@ -13,7 +13,7 @@ class TwitterClient(object):
         self.clean_tweet = globals.clean_tweet
         self.twitter_time_to_datetime = globals.twitter_time_to_datetime
         self.file_key_prefix = '2012_data/cache-'
-        self.classifier_file_name = 'c1.classifier'
+        self.classifier_file_name = 'c2.classifier'
         self.i = 0
         self.every_100th = 0
         if os.path.exists(self.classifier_file_name) is False:
@@ -53,20 +53,12 @@ class TwitterClient(object):
         return user_model
 
     def get_political_classification_model(self, tweet_model):
-        probs = self.pclassifier.probs(tweet_model['tweet_text'])
-        classification = ""
-        highest = '1'
-        if probs['2'] > probs[highest]:
-            highest = '2'
-        if highest == '1':
-            classification = "democrat"
-        elif highest == '2':
-            classification = "republican"
+        classification = self.pclassifier.classify(tweet_model['tweet_text'])
         political_classification_model = {
             'tweet': tweet_model['id'],
-            'democrat_prob': probs['1'],
-            'republican_prob': probs['2'],
-            'third_prob': probs['3'],
+            'democrat_prob': 0.00,
+            'republican_prob': 0.00,
+            'third_prob': 0.00,
             'classification': classification
         }
         return political_classification_model
