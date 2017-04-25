@@ -3,8 +3,8 @@ cd /home/***REMOVED***
 git clone "https://divyansh-gupta:***REMOVED***@github.com/zakkl13/sa_capstone_elections_project.git";
 sudo apt-get -y update;
 sudo apt-get install -y python3-pip;
-sudo apt-get install -y python-mysqldb libmysqlclient-dev;
-sudo pip3 install peewee pytz textblob tweepy boto3 Cython mysqlclient requests numpy scipy scikit-learn nltk;
+sudo apt-get install -y python-mysqldb libmysqlclient-dev python-virtualenv;
+sudo pip3 install peewee pytz textblob tweepy boto3 Cython mysqlclient requests numpy scipy scikit-learn nltk flask zappa;
 mkdir ~/.aws;
 sudo touch ~/.aws/config;
 sudo touch ~/.aws/credentials;

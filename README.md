@@ -18,3 +18,8 @@ Political Classes:
 
 Connect to the AWS Instances as follows:
 ssh -i "***REMOVED***" ***REMOVED***
+
+# Zappa Instructions
+Install the stuff from the boostrap.sh script, make sure to have zappa and Flask pip3 installed as well
+virtualenv zappa
+source zappa/bin/activate
