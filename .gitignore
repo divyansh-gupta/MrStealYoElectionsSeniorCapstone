@@ -9,7 +9,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.c
-*.html
+.html
 # C extensions
 *.so
 

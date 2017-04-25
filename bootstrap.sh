@@ -4,7 +4,7 @@ git clone "https://divyansh-gupta:***REMOVED***@github.com/zakkl13/sa_capstone_e
 sudo apt-get -y update;
 sudo apt-get install -y python3-pip;
 sudo apt-get install -y python-mysqldb libmysqlclient-dev python-virtualenv;
-sudo pip3 install peewee pytz textblob tweepy boto3 Cython mysqlclient requests numpy scipy scikit-learn nltk flask zappa;
+sudo pip3 install peewee pytz textblob tweepy boto3 Cython mysqlclient requests numpy scipy scikit-learn nltk flask zappa flask_socketio;
 mkdir ~/.aws;
 sudo touch ~/.aws/config;
 sudo touch ~/.aws/credentials;

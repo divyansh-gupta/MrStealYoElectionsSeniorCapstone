@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+    <head>
+        <title>Your Tweet Analysis</title>
+        <link rel="stylesheet" href="../static/style.css" type="text/css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+            var democratic_tweets = 0;
+            var republican_tweets = 0;
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable([
+                    ['Political Leaning', 'Number of Tweets'],
+                    ['Democratic', democratic_tweets],
+                    ['Republican',  republican_tweets],
+                ]);
+
+                var options = {
+                    title: 'Your Political Leaning',
+                    is3D: true
+                };
+
+                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+                chart.draw(data, options);
+            }
+
+            function showPage() {
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("myDiv").style.display = "block";
+            }
+
+            function showS3() {
+                document.getElementById("s3").style.display = "block";
+            }
+
+            function myFunction() {
+                $.ajax({
+                    url: "/get_tweets",
+                    type: "get",
+                    success: function(response) {
+                        var div_tweets = $('div.tweets');
+                        var socket = io.connect('http://' + document.domain + ':' + location.port);
+                        var tweet_count = 0;
+                        socket.on('recieve_tweet', function(tweet_json) {
+                            tweet_count += 1;
+                            document.getElementById("tweets_title").innerHTML = 'Your last ' + tweet_count + ' Tweets';
+                            document.getElementById("s3").style.display = "none";
+                            tweet_json = JSON.parse(tweet_json);
+                            if (tweet_json.classification === '_democratic') {
+                                democratic_tweets += 1;
+                                div_tweets.prepend('<div style="color: white; background-color: #9EB4CC;"> ' + tweet_json.tweet_text + '</div><hr></hr>');
+                            } else {
+                                div_tweets.prepend('<div style="color: white; background-color: #FF6666;"> ' + tweet_json.tweet_text + '</div><hr></hr>');
+                                republican_tweets += 1;
+                            }
+                            drawChart()
+                            showPage();
+                        });
+                        showS3();
+                    },
+                    error: function(xhr) {}
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <body onload="myFunction()" style="margin:0;">
+
+        <div id="loader"></div>
+
+        <div style="display:none;" id="myDiv" class="animate-bottom">
+            <h1 id="tweets_title" style="margin-bottom: 10px">Your last x Tweets</h1>
+            <div>
+                <div id="piechart" style="float: left; width: 500px; height: 400px;"></div>
+                <div style="float:right; margin-right: 20px" class="tweets" id="tweets"></div>
+            </div>
+        </div>
+
+        <div style="display:none;" id="s3" class="animate-bottom">
+            <h1>Your tweets have been uploaded to the queue...</h1>
+        </div>
+        <div id=footer>
+        </div>
+
+    </body>
+</html>
