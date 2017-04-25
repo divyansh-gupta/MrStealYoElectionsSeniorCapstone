@@ -88,15 +88,17 @@ class TwitterClient(object):
         print ("inserting political classification, size: " + str(len(political_classification_models)))
         bulk_insert_on_conflict_replace(TweetPolitical, political_classification_models, 0)
 
-    def process_tweets(self, fetched_tweets):
+    def process_tweets(self, fetched_tweets, process_all):
+        self.i = 0
         user_models = {}
         tweet_models = []
         tweet_sentiment_models = []
         hashtag_models = []
         political_classification_models = []
         def process_tweet(tweet):
+            nonlocal user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models
             self.every_100th += 1
-            if (self.every_100th % 50 != 0):
+            if (not process_all and self.every_100th % 50 != 0):
                 return "null"
             tweet_json = json.loads(tweet)
             try:
@@ -117,6 +119,15 @@ class TwitterClient(object):
             self.get_hashtag_models(hashtag_models, tweet_model['id'], tweet_json['entities']['hashtags'])
             political_classification_models.append(self.get_political_classification_model(tweet_model))
             tweet_models.append(tweet_model)
+            self.i += 1
+            if self.i % 1000 == 0:
+                print(self.i)
+                self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
+                user_models = {}
+                tweet_models.clear()
+                tweet_sentiment_models.clear()
+                hashtag_models.clear()
+                political_classification_models.clear()
         print("starting tweet processing")
         fetched_tweets_len = len(fetched_tweets)
         for x in range(0, fetched_tweets_len):
@@ -124,7 +135,7 @@ class TwitterClient(object):
         print("processing of tweets done")
         self.insert_all_information_into_db(user_models, tweet_models, tweet_sentiment_models, hashtag_models, political_classification_models)
 
-    def get_and_process_tweets(self, x):
+    def get_and_process_tweets(self, x, process_all):
         opened_file = ''
         file_key = self.file_key_prefix + str(x) + '.json'
 
@@ -135,5 +146,7 @@ class TwitterClient(object):
 
         fetched_tweets = opened_file.readlines()
         print("File opened and read: " + file_key)
-        self.process_tweets(fetched_tweets)
+        self.process_tweets(fetched_tweets, process_all)
         opened_file.close()
+
+api = TwitterClient()

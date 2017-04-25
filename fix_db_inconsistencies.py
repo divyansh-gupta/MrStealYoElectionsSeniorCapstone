@@ -5,7 +5,7 @@ from peewee import *
 from peewee import RawQuery
 
 from rds import *
-from cmain import TwitterClient
+from cmain import api
 
 def tweet_to_dict(tweet_row):
     return {
@@ -13,21 +13,20 @@ def tweet_to_dict(tweet_row):
         'id': tweet_row.id
     }
 
-api = TwitterClient()
-
-redo_sentiment_tweets = RawQuery(Tweet, "select * from TWEET where TWEET.ID not in (select tweet_id from TWEETSENTIMENT);")
-count = 0
-sentiment_rows = []
-for tweet in redo_sentiment_tweets.execute():
-    sentiment_rows.append(api.get_tweet_sentiment(tweet_to_dict(tweet)))
-    if count % 1000 == 0:
-        print(count)
+def reclassify_sentiment():
+    redo_sentiment_tweets = RawQuery(Tweet, "select * from TWEET where TWEET.ID not in (select tweet_id from TWEETSENTIMENT);")
+    count = 0
+    sentiment_rows = []
+    for tweet in redo_sentiment_tweets.execute():
+        sentiment_rows.append(api.get_tweet_sentiment(tweet_to_dict(tweet)))
+        if count % 1000 == 0:
+            print(count)
+            bulk_insert_on_conflict_replace(TweetSentiment, sentiment_rows, 0)
+            sentiment_rows.clear()
+        count += 1
+    if len(sentiment_rows) > 0:
         bulk_insert_on_conflict_replace(TweetSentiment, sentiment_rows, 0)
-        sentiment_rows.clear()
-    count += 1
-if len(sentiment_rows) > 0:
-    bulk_insert_on_conflict_replace(TweetSentiment, sentiment_rows, 0)
-print("Finished sentiment analysis on all unclassified tweets in db.")
+    print("Finished sentiment analysis on all unclassified tweets in db.")
 
 # {'id': '253961531161718786', 'republican_prob': Decimal('0.44469'), 'retweet_count': 5, 'user': '565779517', 'democrat_prob': Decimal('0.44580'), 
 # 'classification': 'democrat', 'third_prob': Decimal('0.10951'), 
@@ -38,7 +37,7 @@ print("Finished sentiment analysis on all unclassified tweets in db.")
 # LEFT OUTER JOIN TWEETPOLITICAL
 # ON tweets.ID = TWEETPOLITICAL.tweet_id;
 
-def re_classify_politics():
+def reclassify_politics():
     count = 0
     redo_political_tweets = RawQuery(Tweet, "select * from (select * from TWEET where TWEET.ID not in (select tweet_id from TWEETPOLITICAL where classification like '%%\_%%')) as tweets LEFT OUTER JOIN TWEETPOLITICAL ON tweets.ID = TWEETPOLITICAL.tweet_id;")
     political_rows = []
@@ -56,11 +55,5 @@ def re_classify_politics():
             bulk_insert_on_conflict_replace(TweetPolitical, political_rows, 0)
             political_rows.clear()
         count += 1
-    if len(political_rows) > 0:
-        bulk_insert_on_conflict_replace(TweetPolitical, political_rows, 0)
-    # print(political_rows)
-
-# while True:
-re_classify_politics()
-
-print("Done reclassifying political tweets")
+    bulk_insert_on_conflict_replace(TweetPolitical, political_rows, 0)
+    print("Done reclassifying political tweets")

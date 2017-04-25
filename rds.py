@@ -121,6 +121,8 @@ class TweetPolitical(BaseModel):
 
 # @database.atomic()
 def bulk_insert_on_conflict_replace(Model, rows, attempts):
+    if len(rows) <= 0:
+        return
     try:
         database.connect()
     except Exception as e:
