@@ -16,7 +16,7 @@ from api_gateway import *
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-CALLBACK_URL = 'http://localhost:5000/verify'
+CALLBACK_URL = 'http://localhost:80/verify'
 session = dict()
 db = dict() # you can save these values to a database
 
@@ -118,4 +118,4 @@ def start():
     return flask.render_template('tweets.html')
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=80)
