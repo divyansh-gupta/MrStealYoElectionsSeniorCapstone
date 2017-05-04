@@ -4,12 +4,12 @@ import os
 import pickle
 
 
-auth = tweepy.OAuthHandler("***REMOVED***", 
-                            "***REMOVED***")
+auth = tweepy.OAuthHandler("", 
+                            "")
 
 auth.set_access_token(
-    "***REMOVED***",
-    "***REMOVED***")
+    "",
+    "")
 
 api = tweepy.API(auth)
 
@@ -44,7 +44,7 @@ def main():
     if os.path.exists('2016_data') is False:
         os.makedirs('2016_data')
 
-    classifier_file_name = 'c1.classifier'
+    classifier_file_name = 'c2.classifier'
     if os.path.exists(classifier_file_name) is False:
         print('downloading classifier file from s3')
         s3.download_from_s3('social-networking-capstone', classifier_file_name, classifier_file_name, True)

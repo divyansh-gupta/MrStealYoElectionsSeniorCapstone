@@ -1,8 +1,8 @@
 import requests
 import json
 
-api_gateway_key = '***REMOVED***'
-enqueue_endpoint = "***REMOVED***"
+api_gateway_key = ''
+enqueue_endpoint = ""
 
 def enqueue(url, queue, message_body):
     r = requests.post(url, 

@@ -1,7 +1,7 @@
 {
     "production": {
         "app_function": "twitter_app.app",
-        "s3_bucket": "zappa-social-networking-capstone"
+        "s3_bucket": "zappa-social-networking-capstone",
         "slim_handler": true, 
         "exclude": ["scikit-learn*", "*2016_data*", "*2012_data*", "*.classifier*", "boto3*", "botocore*", "cython*", "Cython*", "numpy*", "scipy*", "ntlk*", "textblob*"]
     }

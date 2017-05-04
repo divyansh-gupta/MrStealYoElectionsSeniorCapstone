@@ -58,10 +58,10 @@ class Pclassifier:
     def test(self, test_set):
         print(self.classifier.accuracy(test_set))
 
-consumer_key = '***REMOVED***'
-consumer_secret = '***REMOVED***'
-access_token = '***REMOVED***'
-access_token_secret = '***REMOVED***'
+consumer_key = ''
+consumer_secret = ''
+access_token = ''
+access_token_secret = ''
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)

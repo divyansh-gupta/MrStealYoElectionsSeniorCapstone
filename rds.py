@@ -10,9 +10,9 @@ import globals
 
 ############ EXAMPLE CODE ###############
 
-# db = MySQLdb.connect(host="***REMOVED***",
-#                      user="***REMOVED***",
-#                      passwd="***REMOVED***",
+# db = MySQLdb.connect(host="",
+#                      user="",
+#                      passwd="",
 #                      db="socialnetworkingdb")
 
 # # you must create a Cursor object. It will let
@@ -32,8 +32,8 @@ import globals
 
 ''' The following models were autoproduced using this command:
     python -m pwiz -e mysql \
-    -H ***REMOVED*** \
-    -u ***REMOVED*** socialnetworkingdb -P >> Models.py
+    -H <hostname> \
+    -u <username> socialnetworkingdb -P
 '''
 
 # class RetryDB(RetryOperationalError, MySQLDatabase):
@@ -42,18 +42,18 @@ import globals
 database = MySQLDatabase (
     'socialnetworkingdb',
     **{
-        'host': '***REMOVED***',
-        'password': '***REMOVED***',
-        'user': '***REMOVED***'
+        'host': '',
+        'password': '',
+        'user': ''
      }
 )
 
 read_replica = MySQLDatabase (
     'socialnetworkingdb',
     **{
-        'host': '***REMOVED***',
-        'password': '***REMOVED***',
-        'user': '***REMOVED***'
+        'host': '',
+        'password': '',
+        'user': ''
      }
 )
 

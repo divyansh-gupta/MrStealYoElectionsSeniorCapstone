@@ -22,7 +22,7 @@ db = dict() # you can save these values to a database
 
 @app.route("/")
 def send_token():
-    auth = tweepy.OAuthHandler('***REMOVED***', '***REMOVED***', CALLBACK_URL)
+    auth = tweepy.OAuthHandler('', '', CALLBACK_URL)
     try:
         redirect_url= auth.get_authorization_url()
         session['request_token'] = auth.request_token
@@ -36,7 +36,7 @@ def get_verification():
     #get the verifier key from the request url
     verifier= request.args['oauth_verifier']
     
-    auth = tweepy.OAuthHandler('***REMOVED***', '***REMOVED***')
+    auth = tweepy.OAuthHandler('', '')
     token = session['request_token']
     del session['request_token']
     auth.request_token = token

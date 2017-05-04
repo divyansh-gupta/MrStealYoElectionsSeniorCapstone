@@ -1,10 +1,10 @@
--- host="***REMOVED***",    # your host, usually localhost
---                      user="***REMOVED***",        
---                      passwd="***REMOVED***",
+-- host="",    # your host, usually localhost
+--                      user="",        
+--                      passwd="",
 --                      db="socialnetworkingdb"
 
 -- To connect type in terminal: 
--- mysql -h ***REMOVED*** -P 3306 -u ***REMOVED*** -p socialnetworkingdb
+-- mysql -h <host> -P 3306 -u <username> -p socialnetworkingdb
 
 SET FOREIGN_KEY_CHECKS = 0;
 

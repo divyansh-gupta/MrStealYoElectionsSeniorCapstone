@@ -276,9 +276,9 @@ state_dict = {
 database = MySQLDatabase (
     'socialnetworkingdb',
     **{
-        'host': '***REMOVED***',
-        'password': '***REMOVED***',
-        'user': '***REMOVED***'
+        'host': '',
+        'password': '',
+        'user': ''
      }
 )
 

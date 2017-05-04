@@ -1,11 +1,11 @@
 import boto3
 
-client = boto3.client('ec2', region_name='us-east-1', aws_access_key_id='***REMOVED***', aws_secret_access_key='***REMOVED***')
+client = boto3.client('ec2', region_name='us-east-1', aws_access_key_id='', aws_secret_access_key='')
 
 response = client.request_spot_fleet (
     DryRun = False,
     SpotFleetRequestConfig= {
-    "IamFleetRole": "***REMOVED***",
+    "IamFleetRole": "",
     "AllocationStrategy": "lowestPrice",
     "TargetCapacity": 5,
     "SpotPrice": "0.025",
@@ -28,16 +28,16 @@ response = client.request_spot_fleet (
               "DeleteOnTermination": True,
               "VolumeType": "gp2",
               "VolumeSize": 8,
-              "SnapshotId": "***REMOVED***"
+              "SnapshotId": ""
             }
           }
         ],
         "SecurityGroups": [
           {
-            "GroupId": "***REMOVED***"
+            "GroupId": ""
           }
         ],
-        "UserData": "***REMOVED***"
+        "UserData": ""
       }
     ],
     "Type": "maintain",
