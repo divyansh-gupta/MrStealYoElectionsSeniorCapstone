@@ -1,7 +1,6 @@
 import pyximport; pyximport.install()
 import os
 import json
-
 from cmain import api
 from fix_db_inconsistencies import *
 from api_gateway import *
