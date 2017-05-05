@@ -1,6 +1,6 @@
 #!/bin/bash
 cd /home/ubuntu
-git clone "https://divyansh-gupta:<password>(@github.com/divyansh-gupta/MrStealYoElectionsSeniorCapstone.git";
+git clone "https://divyansh-gupta:<password>@github.com/divyansh-gupta/MrStealYoElectionsSeniorCapstone.git";
 sudo apt-get -y update;
 sudo apt-get install -y python3-pip;
 sudo apt-get install -y python-mysqldb libmysqlclient-dev python-virtualenv;
